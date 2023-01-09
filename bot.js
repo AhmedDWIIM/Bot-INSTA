@@ -1,12 +1,19 @@
 const puppeteer = require('puppeteer');
+//const ObjectsToCsv = require('objects-to-csv');
+//const { Cluster } = require('puppeteer-cluster');
 const dotenv = require('dotenv');
 dotenv.config();
 
 async function run() {
     const browser = await puppeteer.launch({
+        args: [
+            '--disable-web-security',
+            '--disable-features=IsolateOrigins',
+            '--disable-site-isolation-trials'
+        ],
         headless: false
     });
-
+    
     const page = await browser.newPage();
     // Aller sur la page d'accueil d'Instagram
     await page.goto('https://www.instagram.com/');
@@ -21,12 +28,19 @@ async function run() {
     // Saisie du mot de passe
     await page.type('input[name=password]', process.env.INSTAGRAM_PASSWORD);
     // Soumission du formulaire
-    try {
-        // Soumission du formulaire
-        await page.click('button[class="_acan _aiit _acap _aijb _acas _aj1-"]');
-      } catch (error) {
-        console.error(error);
-      }
+    //const csrfToken = await page.$eval('input[name=_csrf]', input => input.value);
+
+    await page.waitForSelector('button[type=submit]');
+
+     // Trouve tous les boutons sur la page
+    const buttons = await page.$$('button[type=submit]');
+
+  // Pour chaque bouton, clique dessus
+    for (let button of buttons) {
+        await button.click();
+    }
+    
+    
 }
 
 run();
